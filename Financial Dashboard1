@@ -1,0 +1,61 @@
+pip install pandas numpy matplotlib streamlit
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Page configuration
+st.set_page_config(page_title="Financial Model Dashboard", page_icon="💰")
+
+# Title and Company Name
+st.title("Financial Model Dashboard")
+st.write("Company: SAMPLE COMPANY LTD")
+
+# Input Fields
+st.sidebar.title("Input Data")
+st.sidebar.write("Enter historical data for up to three years:")
+
+num_years = st.sidebar.slider("Number of Years", min_value=1, max_value=3, value=1)
+
+data = []
+for i in range(num_years):
+    st.sidebar.subheader(f"Year {i + 1}")
+    year = st.sidebar.number_input("Year", min_value=1900, max_value=2100, step=1, value=2021 + i)
+    currency = st.sidebar.text_input("Currency", value="$")
+    revenue = st.sidebar.number_input("Revenue", min_value=0.0)
+    cogs = st.sidebar.number_input("COGS", min_value=0.0)
+    gross_profit_loss = revenue - cogs
+    sga = st.sidebar.number_input("SG&A", min_value=0.0)
+    operating_income = gross_profit_loss - sga
+
+    data.append({
+        "Year": year,
+        "Currency": currency,
+        "Revenue": revenue,
+        "COGS": cogs,
+        "Gross Profit/(Loss)": gross_profit_loss,
+        "SG&A": sga,
+        "Operating Income": operating_income
+    })
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Display Historical Data Input Report
+st.subheader("Historical Data Input Report")
+st.dataframe(df)
+
+# Create Plots
+fig, ax = plt.subplots(figsize=(10, 6))
+for year in df["Year"]:
+    year_data = df[df["Year"] == year]
+    ax.plot(year_data["Year"], year_data["Revenue"], label=f"Year {year}")
+
+ax.set_xlabel("Year")
+ax.set_ylabel("Revenue")
+ax.set_title("Revenue Over Years")
+ax.legend()
+
+st.subheader("Revenue Visualization")
+st.pyplot(fig)
+streamlit run financial_dashboard.py
